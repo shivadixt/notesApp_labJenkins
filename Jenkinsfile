@@ -29,12 +29,14 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh '''
+		sh '''
                     . venv/bin/activate
-                    pkill -f "python app.py" || true
-                    nohup python app.py > app.log 2>&1 &
-                    sleep 2
-                '''
+	            pkill -f "python app.py" || true
+	            sleep 1
+	            BUILD_ID=dontKillMe nohup python app.py > app.log 2>&1 &
+	            disown
+	            sleep 2
+	        '''
             }
         }
     }
