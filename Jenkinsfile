@@ -26,6 +26,17 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    pkill -f "python app.py" || true
+                    nohup python app.py > app.log 2>&1 &
+                    sleep 2
+                '''
+            }
+        }
     }
 
     post {
@@ -36,14 +47,4 @@ pipeline {
             echo 'Something failed — check the logs above.'
         }
     }
-    stage('Deploy') {
-    steps {
-        sh '''
-            . venv/bin/activate
-            pkill -f "python app.py" || true
-            nohup python app.py > app.log 2>&1 &
-            sleep 2
-        '''
-    }
-}
 }
