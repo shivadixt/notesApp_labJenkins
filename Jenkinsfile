@@ -28,22 +28,26 @@ pipeline {
         }
 
         stage('Deploy') {
+            environment {
+                BUILD_ID = "dontKillMe"
+            }
             steps {
-		sh '''
+                sh '''
                     . venv/bin/activate
-	            pkill -f "python app.py" || true
-	            sleep 1
-	            BUILD_ID=dontKillMe nohup python app.py > app.log 2>&1 &
-	            disown
-	            sleep 2
-	        '''
+                    pkill -f "python app.py" || true
+                    sleep 1
+                    setsid nohup python app.py > app.log 2>&1 < /dev/null &
+                    sleep 2
+                    echo "Checking if app started..."
+                    ps aux | grep "python app.py" | grep -v grep
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'Tests passed! Pipeline completed successfully.'
+            echo 'Pipeline completed successfully — app should be live on port 5000.'
         }
         failure {
             echo 'Something failed — check the logs above.'
