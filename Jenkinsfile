@@ -28,16 +28,13 @@ pipeline {
         }
 
         stage('Deploy') {
-            environment {
-                BUILD_ID = "dontKillMe"
-            }
             steps {
                 sh '''
                     . venv/bin/activate
                     pkill -f "python app.py" || true
                     sleep 1
-                    setsid nohup python app.py > app.log 2>&1 < /dev/null &
-                    sleep 2
+                    echo "cd $(pwd) && . venv/bin/activate && python app.py > app.log 2>&1" | at now
+                    sleep 3
                     echo "Checking if app started..."
                     ps aux | grep "python app.py" | grep -v grep
                 '''
